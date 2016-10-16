@@ -1,0 +1,62 @@
+.include "8clocks.jsim"
+.include "nominal.jsim"
+.include "stdcell.jsim"
+
+* .connect OP cIn0
+
+.subckt fulladder a b OP cIn cOut sum
+Xxor_0 b OP bi xor2
+Xxor_1 a bi out1 xor2
+Xxor_2 out1 cIn sum xor2
+Xand_1 out1 cIn out2 and2
+Xand_2 a bi out3 and2
+Xor_1 out2 out3 cOut or2
+.ends
+
+.subckt comparator op1 op2 n v z f
+Xxor_1 n v n1 xor2
+Xand_1 op2 n1 a and2
+Xand_2 op1 z b and2
+Xor_1 a b f or2
+.ends
+
+.subckt knex a b
+.connect a b
+.ends
+
+Wone a[31:0] nrz(0, 5, 20ns, 10ns, 0.1ns, 0.1ns) 0b0011
+Wtwo b[31:0] nrz(0, 5, 25ns, 0ns, 0.1ns, 0.1ns) 0b0101
+* Wop OP nrz(0, 5, 0ns, 0ns, 0.1ns, 0.1ns) 0
+* Wop1 OP1 nrz(0, 5, 0ns, 0ns, 0.1ns, 0.1ns) 0
+* Wop2 OP2 nrz(0, 5, 0ns, 0ns, 0.1ns, 0.1ns) 1
+Ws reset nrz(0, 5, 15ns, 0ns, 0.1ns, 0.1ns) 1 0
+Wfn ALUFN[5:0] nrz(0, 5, 200ns, 0ns, 0.1ns, 0.1ns) 0b001000 0b001110 0b000110 0b000011 0b001100 0b001010
+
+* Xconn cOut[0:30] cIn[1:31] knex
+
+* Xfa a[31:0] b[31:0] OP#32 cIn[31:0] cOut[31:0] sum[31:0] fulladder
+
+* .connect sum31 n
+
+* Xxor_V cOut30 cOut31 v xor2
+
+* Xor_Z1 sum[0:7] sum[8:15] sum[16:23] sum[24:31] nors_a[0:7] nor4
+* Xor_Z2 nors_a[0:1] nors_a[2:3] nors_a[4:5] nors_a[6:7] ands_a[0:1] and4
+* Xnor_Z ands_a0 ands_a1 z and2
+
+* Xcom OP1 OP2 n v z f comparator
+
+* Xreset reset#32 sum[31:0] 0#32 muxOut[31:0] mux2
+* Xregisters muxOut[31:0] clk2#32 b[31:0] dreg
+
+Xboolean a[31:0] b[31:0] ALUFN0#32 ALUFN1#32 ALUFN2#32 ALUFN3#32 boolOut[31:0] mux4
+
+.tran 1500ns
+* .plot sum[31:0]
+.plot a[31:0]
+.plot b[31:0]
+.plot boolOut[31:0]
+.plot ALUFN[5:0]
+* .plot clk2
+* .plot reset
+* .plot f
