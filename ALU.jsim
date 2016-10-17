@@ -21,24 +21,32 @@ Xor_1 a b f or2
 .ends
 
 .subckt shifter a[31:0] b[31:0] arithmetic right shifted[31:0]
-Xmux_4a b4#32 a[31:0] a[47:16] out1[31:0] mux2
-Xmux_3a b3#32 out1[31:0] out1[39:8] out2[31:0] mux2
-Xmux_2a b2#32 out2[31:0] out2[35:4] out3[31:0] mux2
-Xmux_1a b1#32 out3[31:0] out3[33:2] out4[31:0] mux2
-Xmux_0a b0#32 out4[31:0] out4[32:1] shifted[31:0] mux2
+Xmux_s arithmetic 0 a31 sign mux2
+Xmux_lr right#32 a[0:31] a[31:0] out0[31:0] mux2
+.connect out0[47:32] sign
+.connect out1[39:32] sign
+.connect out2[35:32] sign
+.connect out3[33:32] sign
+.connect out4[32:32] sign
+Xmux_4 b4#32 out0[31:0] out0[47:16] out1[31:0] mux2
+Xmux_3 b3#32 out1[31:0] out1[39:8] out2[31:0] mux2
+Xmux_2 b2#32 out2[31:0] out2[35:4] out3[31:0] mux2
+Xmux_1 b1#32 out3[31:0] out3[33:2] out4[31:0] mux2
+Xmux_0 b0#32 out4[31:0] out4[32:1] outF[31:0] mux2
+Xmux_f right#32 outF[0:31] outF[31:0] shifted[31:0] mux2
 .ends
 
 .subckt knex a b
 .connect a b
 .ends
 
-Wone a[31:0] nrz(0, 5, 20ns, 10ns, 0.1ns, 0.1ns) 0xFFFFFFFF
-Wtwo b[31:0] nrz(0, 5, 25ns, 0ns, 0.1ns, 0.1ns) 0b11111
+Wone a[31:0] nrz(0, 5, 100ns, 10ns, 0.1ns, 0.1ns) 0xFFFFFFFF
+Wtwo b[31:0] nrz(0, 5, 100ns, 0ns, 0.1ns, 0.1ns) 0b10000
 * Wop OP nrz(0, 5, 0ns, 0ns, 0.1ns, 0.1ns) 0
 * Wop1 OP1 nrz(0, 5, 0ns, 0ns, 0.1ns, 0.1ns) 0
 * Wop2 OP2 nrz(0, 5, 0ns, 0ns, 0.1ns, 0.1ns) 1
 Ws reset nrz(0, 5, 15ns, 0ns, 0.1ns, 0.1ns) 1 0
-Wfn ALUFN[5:0] nrz(0, 5, 200ns, 0ns, 0.1ns, 0.1ns) 0b000001
+Wfn ALUFN[5:0] nrz(0, 5, 200ns, 0ns, 0.1ns, 0.1ns) 0b000000
 
 * Xconn cOut[0:30] cIn[1:31] knex
 
