@@ -20,17 +20,25 @@ Xand_2 op1 z b and2
 Xor_1 a b f or2
 .ends
 
+.subckt shifter a[31:0] b[31:0] arithmetic right shifted[31:0]
+Xmux_4a b4#32 a[31:0] a[47:16] out1[31:0] mux2
+Xmux_3a b3#32 out1[31:0] out1[39:8] out2[31:0] mux2
+Xmux_2a b2#32 out2[31:0] out2[35:4] out3[31:0] mux2
+Xmux_1a b1#32 out3[31:0] out3[33:2] out4[31:0] mux2
+Xmux_0a b0#32 out4[31:0] out4[32:1] shifted[31:0] mux2
+.ends
+
 .subckt knex a b
 .connect a b
 .ends
 
-Wone a[31:0] nrz(0, 5, 20ns, 10ns, 0.1ns, 0.1ns) 0b0011
-Wtwo b[31:0] nrz(0, 5, 25ns, 0ns, 0.1ns, 0.1ns) 0b0101
+Wone a[31:0] nrz(0, 5, 20ns, 10ns, 0.1ns, 0.1ns) 0xFFFFFFFF
+Wtwo b[31:0] nrz(0, 5, 25ns, 0ns, 0.1ns, 0.1ns) 0b11111
 * Wop OP nrz(0, 5, 0ns, 0ns, 0.1ns, 0.1ns) 0
 * Wop1 OP1 nrz(0, 5, 0ns, 0ns, 0.1ns, 0.1ns) 0
 * Wop2 OP2 nrz(0, 5, 0ns, 0ns, 0.1ns, 0.1ns) 1
 Ws reset nrz(0, 5, 15ns, 0ns, 0.1ns, 0.1ns) 1 0
-Wfn ALUFN[5:0] nrz(0, 5, 200ns, 0ns, 0.1ns, 0.1ns) 0b001000 0b001110 0b000110 0b000011 0b001100 0b001010
+Wfn ALUFN[5:0] nrz(0, 5, 200ns, 0ns, 0.1ns, 0.1ns) 0b000001
 
 * Xconn cOut[0:30] cIn[1:31] knex
 
@@ -49,14 +57,17 @@ Wfn ALUFN[5:0] nrz(0, 5, 200ns, 0ns, 0.1ns, 0.1ns) 0b001000 0b001110 0b000110 0b
 * Xreset reset#32 sum[31:0] 0#32 muxOut[31:0] mux2
 * Xregisters muxOut[31:0] clk2#32 b[31:0] dreg
 
-Xboolean a[31:0] b[31:0] ALUFN0#32 ALUFN1#32 ALUFN2#32 ALUFN3#32 boolOut[31:0] mux4
+* Xboolean a[31:0] b[31:0] ALUFN0#32 ALUFN1#32 ALUFN2#32 ALUFN3#32 boolOut[31:0] mux4
+
+Xshifter a[31:0] b[31:0] ALUFN1 ALUFN0 shifted[31:0] shifter
 
 .tran 1500ns
 * .plot sum[31:0]
 .plot a[31:0]
 .plot b[31:0]
-.plot boolOut[31:0]
+*.plot boolOut[31:0]
 .plot ALUFN[5:0]
+.plot shifted[31:0]
 * .plot clk2
 * .plot reset
 * .plot f
