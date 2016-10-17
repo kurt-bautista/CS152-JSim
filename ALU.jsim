@@ -4,8 +4,8 @@
 
 * .connect OP cIn0
 
-.subckt fulladder a b OP cIn cOut sum
-Xxor_0 b OP bi xor2
+.subckt fulladder a b subtract cIn cOut sum
+Xxor_0 b subtract bi xor2
 Xxor_1 a bi out1 xor2
 Xxor_2 out1 cIn sum xor2
 Xand_1 out1 cIn out2 and2
@@ -13,16 +13,49 @@ Xand_2 a bi out3 and2
 Xor_1 out2 out3 cOut or2
 .ends
 
-.subckt comparator op1 op2 n v z f
-Xxor_1 n v n1 xor2
-Xand_1 op2 n1 a and2
-Xand_2 op1 z b and2
-Xor_1 a b f or2
+.subckt fulladder32 a[31:0] b[31:0] subtract sum[31:0] n v z
+* Full Adders
+Xconn cOut[0:30] cIn[1:31] knex
+.connect subtract cIn0
+Xfa a[31:0] b[31:0] subtract#32 cIn[31:0] cOut[31:0] sum[31:0] fulladder
+
+* Negative flag
+.connect sum31 n
+
+* Overflow flag
+Xxor_V cOut30 cOut31 v xor2
+
+* Zero flag
+Xor_Z1 sum[0:7] sum[8:15] sum[16:23] sum[24:31] nors_a[0:7] nor4
+Xor_Z2 nors_a[0:1] nors_a[2:3] nors_a[4:5] nors_a[6:7] ands_a[0:1] and4
+Xnor_Z ands_a0 ands_a1 z and2
 .ends
 
-.subckt shifter a[31:0] b[31:0] arithmetic right shifted[31:0]
+.subckt comparator equal lessthan n v z f[31:0]
+* Pad F with zeroes
+.connect f[31:1] 0
+
+* Fix N
+Xxor_1 n v n1 xor2
+
+* Compare function
+Xand_1 lessthan n1 a and2
+Xand_2 equal z b and2
+Xor_1 a b f0 or2
+.ends
+
+.subckt boolean32 a[31:0] b[31:0] ALUFN0 ALUFN1 ALUFN2 ALUFN3 boolOut[31:0]
+Xboolean a[31:0] b[31:0] ALUFN0#32 ALUFN1#32 ALUFN2#32 ALUFN3#32 boolOut[31:0] mux4 
+.ends
+
+.subckt shifter32 a[31:0] b[31:0] arithmetic right shifted[31:0]
+* SRA
 Xmux_s arithmetic 0 a31 sign mux2
+
+* SHL
 Xmux_lr right#32 a[0:31] a[31:0] out0[31:0] mux2
+
+* SHR
 .connect out0[47:32] sign
 .connect out1[39:32] sign
 .connect out2[35:32] sign
@@ -33,6 +66,8 @@ Xmux_3 b3#32 out1[31:0] out1[39:8] out2[31:0] mux2
 Xmux_2 b2#32 out2[31:0] out2[35:4] out3[31:0] mux2
 Xmux_1 b1#32 out3[31:0] out3[33:2] out4[31:0] mux2
 Xmux_0 b0#32 out4[31:0] out4[32:1] outF[31:0] mux2
+
+* Output
 Xmux_f right#32 outF[0:31] outF[31:0] shifted[31:0] mux2
 .ends
 
@@ -40,42 +75,31 @@ Xmux_f right#32 outF[0:31] outF[31:0] shifted[31:0] mux2
 .connect a b
 .ends
 
-Wone a[31:0] nrz(0, 5, 100ns, 10ns, 0.1ns, 0.1ns) 0xFFFFFFFF
-Wtwo b[31:0] nrz(0, 5, 100ns, 0ns, 0.1ns, 0.1ns) 0b10000
-* Wop OP nrz(0, 5, 0ns, 0ns, 0.1ns, 0.1ns) 0
-* Wop1 OP1 nrz(0, 5, 0ns, 0ns, 0.1ns, 0.1ns) 0
-* Wop2 OP2 nrz(0, 5, 0ns, 0ns, 0.1ns, 0.1ns) 1
-Ws reset nrz(0, 5, 15ns, 0ns, 0.1ns, 0.1ns) 1 0
-Wfn ALUFN[5:0] nrz(0, 5, 200ns, 0ns, 0.1ns, 0.1ns) 0b000000
+.subckt ALU32 A[31:0] B[31:0] ALUFN[5:0] F[31:0]
+* Circuits
+Xadder A[31:0] B[31:0] ALUFN0 SUM[31:0] N V Z fulladder32
+Xcomparator ALUFN1 ALUFN2 N V Z COMPARE[31:0] comparator
+Xboolean A[31:0] B[31:0] ALUFN0 ALUFN1 ALUFN2 ALUFN3 BOOLEAN[31:0] boolean32
+Xshifter A[31:0] B[31:0] ALUFN1 ALUFN0 SHIFTED[31:0] shifter32
 
-* Xconn cOut[0:30] cIn[1:31] knex
+* Output
+Xmux_f ALUFN4#32 ALUFN5#32 SUM[31:0] BOOLEAN[31:0] SHIFTED[31:0] COMPARE[31:0] F[31:0] mux4 
+.ends
 
-* Xfa a[31:0] b[31:0] OP#32 cIn[31:0] cOut[31:0] sum[31:0] fulladder
+Wone A[31:0] nrz(0, 5, 100ns, 10ns, 0.1ns, 0.1ns) 0b00001111
+Wtwo B[31:0] nrz(0, 5, 100ns, 0ns, 0.1ns, 0.1ns)  0b01010101
+Wfn ALUFN[5:0] nrz(0, 5, 200ns, 0ns, 0.1ns, 0.1ns) 0x18 0x1E 0x16 0x1A
 
-* .connect sum31 n
-
-* Xxor_V cOut30 cOut31 v xor2
-
-* Xor_Z1 sum[0:7] sum[8:15] sum[16:23] sum[24:31] nors_a[0:7] nor4
-* Xor_Z2 nors_a[0:1] nors_a[2:3] nors_a[4:5] nors_a[6:7] ands_a[0:1] and4
-* Xnor_Z ands_a0 ands_a1 z and2
-
-* Xcom OP1 OP2 n v z f comparator
-
+* Counter
+* Ws reset nrz(0, 5, 15ns, 0ns, 0.1ns, 0.1ns) 1 0
 * Xreset reset#32 sum[31:0] 0#32 muxOut[31:0] mux2
 * Xregisters muxOut[31:0] clk2#32 b[31:0] dreg
 
-* Xboolean a[31:0] b[31:0] ALUFN0#32 ALUFN1#32 ALUFN2#32 ALUFN3#32 boolOut[31:0] mux4
-
-Xshifter a[31:0] b[31:0] ALUFN1 ALUFN0 shifted[31:0] shifter
+Xalu A[31:0] B[31:0] ALUFN[5:0] F[31:0] ALU32
 
 .tran 1500ns
-* .plot sum[31:0]
-.plot a[31:0]
-.plot b[31:0]
-*.plot boolOut[31:0]
+.plot A[31:0]
+.plot B[31:0]
 .plot ALUFN[5:0]
-.plot shifted[31:0]
-* .plot clk2
-* .plot reset
-* .plot f
+.plot F[31:0]
+
