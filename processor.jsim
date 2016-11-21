@@ -1,0 +1,33 @@
+.include "8clocks.jsim"
+.include "nominal.jsim"
+.include "stdcell.jsim"
+.include "ALU.jsim"
+
+
+.subckt controlunit OPCODE[5:0] Z PCSEL RA2SEL ASEL BSEL WDSEL[1:0] ALUFN[5:0] Wr WERF WASEL 
+
+Xconn_1 OPCODE[5:0] OPCODEZ[6:1] knex
+.connect OPCODEZ0 Z
+
+* Control Unit
+Xmem
++ vdd 0 0 OPCODEZ[6:0] flags[13:0]
++ $memory width=14 nlocations=128
++ contents=
+
+Xconn_2 flags[7:3] ALUFN[5:0] knex
+Xconn_3 flags[9:8] WDSEL[1:0] knex
+.connect flags13 PCSEL
+.connect flags12 RA2SEL
+.connect flags11 ASEL
+.connect flags10 BSEL
+.connect flags2 Wr
+.connect flags1 WERF
+.connect flags0 WASEL
+
+.end
+
+* Counter
+* Ws reset nrz(0, 5, 15ns, 0ns, 0.1ns, 0.1ns) 1 0
+* Xreset reset#32 sum[31:0] 0#32 muxOut[31:0] mux2
+* Xregisters muxOut[31:0] clk2#32 b[31:0] dreg

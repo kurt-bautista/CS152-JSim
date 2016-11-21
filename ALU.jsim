@@ -88,11 +88,6 @@ Wone A[31:0] nrz(0, 5, 100ns, 0ns, 0.1ns, 0.1ns) 15 -1 -256
 Wtwo B[31:0] nrz(0, 5, 100ns, 0ns, 0.1ns, 0.1ns)  3 31 5
 Wfn ALUFN[5:0] nrz(0, 5, 100ns, 0ns, 0.1ns, 0.1ns) 0x20 0x21 0x23
 
-* Counter
-* Ws reset nrz(0, 5, 15ns, 0ns, 0.1ns, 0.1ns) 1 0
-* Xreset reset#32 sum[31:0] 0#32 muxOut[31:0] mux2
-* Xregisters muxOut[31:0] clk2#32 b[31:0] dreg
-
 Xalu A[31:0] B[31:0] ALUFN[5:0] F[31:0] ALU32
 
 .tran 1500ns
