@@ -84,14 +84,14 @@ Xshifter A[31:0] B[31:0] ALUFN1 ALUFN0 SHIFTED[31:0] shifter32
 Xmux_f ALUFN4#32 ALUFN5#32 SUM[31:0] BOOLEAN[31:0] SHIFTED[31:0] COMPARE[31:0] F[31:0] mux4 
 .ends
 
-Wone A[31:0] nrz(0, 5, 100ns, 0ns, 0.1ns, 0.1ns) 15 -1 -256
-Wtwo B[31:0] nrz(0, 5, 100ns, 0ns, 0.1ns, 0.1ns)  3 31 5
-Wfn ALUFN[5:0] nrz(0, 5, 100ns, 0ns, 0.1ns, 0.1ns) 0x20 0x21 0x23
+* Wone A[31:0] nrz(0, 5, 100ns, 0ns, 0.1ns, 0.1ns) 15 -1 -256
+* Wtwo B[31:0] nrz(0, 5, 100ns, 0ns, 0.1ns, 0.1ns)  3 31 5
+* Wfn ALUFN[5:0] nrz(0, 5, 100ns, 0ns, 0.1ns, 0.1ns) 0x20 0x21 0x23
 
-Xalu A[31:0] B[31:0] ALUFN[5:0] F[31:0] ALU32
+* Xalu A[31:0] B[31:0] ALUFN[5:0] F[31:0] ALU32
 
-.tran 1500ns
-.plot A[31:0]
-.plot B[31:0]
-.plot ALUFN[5:0]
-.plot F[31:0]
+* .tran 1500ns
+* .plot A[31:0]
+* .plot B[31:0]
+* .plot ALUFN[5:0]
+* .plot F[31:0]
