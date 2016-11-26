@@ -140,7 +140,23 @@
 
 .ends
 
-.subckt 
+.subckt mainmemory A[31:0] WD[31:0] Wr RD[31:0]
+    Xmem
+    + 
+.ends
+
+.subckt instructionmemory A[4:0] D[31:0]
+    Xmem
+.ends
+
+.subckt registers clk WD[31:0] WE WA[4:0] RA1[4:0] RA2[4:0] RD1[31:0] RD2[31:0]
+    Xmem
+    + 0 clk WE WA[4:0] WD[31:0]
+    + vdd 0 0 RA1[4:0] RD1[31:0]
+    + vdd 0 0 RA2[4:0] RD2[31:0]
+    + $memory width=32 nlocations=1024
+    + contents=(0)
+.ends
 
 * Wop OPCODE[5:0] nrz(0, 5, 100ns, 0ns, 0.1ns, 0.1ns) 0
 * Wz z nrz(0, 5, 100ns, 0ns, 0.1ns, 0.1ns) 0
