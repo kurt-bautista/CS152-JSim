@@ -1,0 +1,5 @@
+.include "memory.jsim"
+
+.subckt PC clk PCSEL[1:0] JT[31:0] PCOut[31:0]
+    
+.ends

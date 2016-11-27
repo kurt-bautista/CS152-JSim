@@ -1,6 +1,4 @@
-.include "8clocks.jsim"
-.include "nominal.jsim"
-.include "stdcell.jsim"
+.include "ALU.jsim"
 
 .subckt controlunit OPCODE[5:0] Z PCSEL[1:0] RA2SEL BSEL WDSEL[1:0] ALUFN[5:0] Wr WERF 
 
