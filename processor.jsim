@@ -64,16 +64,16 @@
         + 0b00110000000010 // ST
         + 0b00000000000000
         + 0b00000000000000
-        + 0b00000000000000 // JMP
-        + 0b00000000000000 // JMP
+        + 0b10000000000001 // JMP
+        + 0b10000000000001 // JMP
         + 0b00000000000000
         + 0b00000000000000
-        + 0b00000000000000 // BEQ
-        + 0b00000000000000 // BEQ
-        + 0b00000000000000 // BNE
-        + 0b00000000000000 // BNE
-        + 0b00000000000000 // LDR
-        + 0b00000000000000 // LDR
+        + 0b00000000000001 // BEQ
+        + 0b01000000000001 // BEQ
+        + 0b01000000000001 // BNE
+        + 0b00000000000001 // BNE
+        + 0b00000000000000
+        + 0b00000000000000
         + 0b00000100000001 // ADD
         + 0b00000100000001 // ADD
         + 0b00000100000101 // SUB
@@ -106,10 +106,10 @@
         + 0b00000110001101 // SRA
         + 0b00000000000000
         + 0b00000000000000
-        + 0b00010100000001
-        + 0b00010100000001
-        + 0b00010100000101
-        + 0b00010100000101
+        + 0b00000000000000
+        + 0b00000000000000
+        + 0b00000000000000
+        + 0b00000000000000
         + 0b00000000000000
         + 0b00000000000000
         + 0b00000000000000
@@ -140,22 +140,26 @@
 
 .ends
 
-.subckt mainmemory A[31:0] WD[31:0] Wr RD[31:0]
+.subckt mainmemory clk A[9:0] WD[31:0] Wr RD[31:0]
     Xmem
-    + 
+    + vdd 0 0 A[9:0] RD[31:0]
+    + 0 clk Wr A[9:0] WD[31:0]
+    + $memory width=32 nlocations=1024
+    + contents=(0)
 .ends
 
-.subckt instructionmemory A[9:0] D[31:0]
-    Xmem
-.ends
+* .subckt instructionmemory A[9:0] D[31:0]
+*     Xmem
+*     + vdd 0 0 A[9:0] D[31:0]
+*     + $memory width=32 nlocations=1024
+* .ends
 
 .subckt registers clk WD[31:0] WE WA[4:0] RA1[4:0] RA2[4:0] RD1[31:0] RD2[31:0]
 
     *Disable write if R31
-    Xand_1 WA[4:3] WA[2:1] a[1:0] and2
-    Xand_2 a1 a0 b and2
-    Xand_3 WA0 b c and2
-    Xxor_1 c WE wre xor2
+    Xand_1 WA4 WA3 WA2 WA1 a and4
+    Xnand_1 a WA0 b nand2
+    Xand_2_1 b WE wre and2
 
     Xmem
     + 0 clk wre WA[4:0] WD[31:0]
