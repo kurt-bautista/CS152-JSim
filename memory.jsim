@@ -155,7 +155,7 @@
     + contents=(0)
 .ends
 
-.subckt registers clk WD[31:0] WE WA[4:0] RA1[4:0] RA2[4:0] RD1[31:0] RD2[31:0]
+.subckt registers clk WD[31:0] WE WA[4:0] RA1a[4:0] RA2a[4:0] RD1d[31:0] RD2d[31:0]
 
     *Disable write if R31
     Xand_1 WA4 WA3 WA2 WA1 a and4
@@ -164,8 +164,8 @@
 
     Xmem
     + 0 clk wre WA[4:0] WD[31:0]
-    + vdd 0 0 RA1[4:0] RD1[31:0]
-    + vdd 0 0 RA2[4:0] RD2[31:0]
+    + vdd 0 0 RA1a[4:0] RD1d[31:0]
+    + vdd 0 0 RA2a[4:0] RD2d[31:0]
     + $memory width=32 nlocations=32
     + contents=(0)
 
