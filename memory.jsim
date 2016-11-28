@@ -140,10 +140,10 @@
 
 .ends
 
-.subckt datamemory clk A[9:0] WD[31:0] Wr RD[31:0]
+.subckt datamemory clock A[9:0] WD[31:0] Wr RD[31:0]
     Xmem
     + vdd 0 0 A[9:0] RD[31:0]
-    + 0 clk Wr A[9:0] WD[31:0]
+    + 0 clock Wr A[9:0] WD[31:0]
     + $memory width=32 nlocations=1024
     + contents=(0)
 .ends
@@ -155,7 +155,7 @@
     + contents=(0)
 .ends
 
-.subckt registers clk WD[31:0] WE WA[4:0] RA1a[4:0] RA2a[4:0] RD1d[31:0] RD2d[31:0]
+.subckt registers clock WD[31:0] WE WA[4:0] RA1a[4:0] RA2a[4:0] RD1d[31:0] RD2d[31:0]
 
     *Disable write if R31
     Xand_1 WA4 WA3 WA2 WA1 a and4
@@ -163,7 +163,7 @@
     Xand_2_1 b WE wre and2
 
     Xmem
-    + 0 clk wre WA[4:0] WD[31:0]
+    + 0 clock wre WA[4:0] WD[31:0]
     + vdd 0 0 RA1a[4:0] RD1d[31:0]
     + vdd 0 0 RA2a[4:0] RD2d[31:0]
     + $memory width=32 nlocations=32
