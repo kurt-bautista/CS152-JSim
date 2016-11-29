@@ -1,5 +1,11 @@
 .include "memory.jsim"
 
+.subckt fulladder32l a[31:0] b[31:0] sum[31:0]
+    Xconn cOut[0:30] cIn[1:31] knex
+    .connect 0 cIn0
+    Xfa a[31:0] b[31:0] 0#32 cIn[31:0] cOut[31:0] sum[31:0] fulladder  
+.ends
+
 .subckt programcounter clock reset PCSEL[1:0] JT[31:0] offset[31:0] Next[31:0] A[31:0] PCNext[31:0]
 
     Xmux PCSEL0#32 PCSEL1#32 Next[31:0] offset[31:0] JT[31:0] 0#32 muxOut[31:0] mux4
@@ -7,28 +13,47 @@
     Xregisters input[31:0] clock#32 A[31:0] dreg
 
     Wfour four[31:0] nrz(0, 5, 10ns, 0ns, 0.1ns, 0.1ns) 4
-    Xconn cOut[0:30] cIn[1:31] knex
-    .connect 0 cIn0
-    Xfa A[31:0] four[31:0] 0#32 cIn[31:0] cOut[31:0] PCNext[31:0] fulladder
+    Xfa A[31:0] four[31:0] PCNext[31:0] fulladder32l
 
 .ends
 
-Ws reset nrz(0, 5, 15ns, 0ns, 0.1ns, 0.1ns) 1 0
+Ws reset nrz(0, 5, 150ns, 0ns, 0.1ns, 0.1ns) 1 0
+Wtwo two[31:0] nrz(0, 5, 0ns, 0ns, 0.1ns, 0.1ns) 2
 
 * Initialize devices
 
-Xpc clk4 reset PCSEL[1:0] RD1d[31:0] offset[31:0] Next[31:0] A[31:0] Next[31:0] programcounter
-Xcu D[31:26] Z PCSEL[1:0] RA2SEL BSEL WDSEL[1:0] ALUFN[5:0] Wr WERF controlunit
-Xim A[9:0] D[31:0] instructionmemory //Fix A
-Xdm clk4 ALUOut[31:0] RD2d[9:0] Wr RD[31:0] datamemory //Fix RD2d
-Xreg clk4 WDSELOut[31:0] WERF D[25:21] D[20:16] RA2SELOut[4:0] RD1d[31:0] RD2d[31:0] registers
+Xpc clk5 reset PCSEL[1:0] RD1d[31:0] offset[31:0] Next[31:0] A[31:0] Next[31:0] programcounter
+Xcu D[31:26] 0 PCSEL[1:0] RA2SEL BSEL WDSEL[1:0] ALUFN[5:0] Wr WERF controlunit
+Xim A[11:2] D[31:0] instructionmemory
+Xdm clk5 ALUOut[31:0] RD2d[9:0] Wr RD[31:0] reset datamemory //Fix RD2d
+Xreg clk5 WDSELOut[31:0] WERF D[25:21] D[20:16] RA2SELOut[4:0]  RD1d[31:0] RD2d[31:0] reset registers
 Xalu RD1d[31:0] BSELOut[31:0] ALUFN[5:0] ALUOut[31:0] ALU32
 Xra2sel RA2SEL#5 D[15:11] D[25:21] RA2SELOut[4:0] mux2
-Xbsel BSEL#32 RD2d[31:0] D[31:0] BSELOut[31:0] mux2 //Fix D
+Xbsel BSEL#32 RD2d[31:0] C[31:0] BSELOut[31:0] mux2
 Xwdsel WDSEL0#32 WDSEL1#32 Next[31:0] ALUOut[31:0] RD[31:0] 0#32 WDSELOut[31:0] mux4
 
-//TODO: Get Z
+* Get Z
+Xnor_1 RD1d[0:7] RD1d[8:15] RD1d[16:23] RD1d[24:31] nors[7:0] nor4
+Xand_1 nors[0:1] nors[2:3] nors[4:5] nors[6:7] ands[1:0] and4
+Xand_2 ands1 ands0 Z and2
 
-.tran 500ns
-.plot reset
-.plot clk4
+.connect 0 C[31:16]
+Xc C[15:0] D[15:0] knex
+
+* Shift
+Xshift C[31:0] two[31:0] 0 0 shiftedC[31:0] shifter32
+
+* Add Next and D
+Xfa_1 Next[31:0] shiftedC[31:0] offset[31:0] fulladder32l
+
+Wtests zz[4:0] nrz(0, 5, 0ns, 0ns, 0.1ns, 0.1ns) 0b11111
+
+.tran 20000ns
+.plot Next[31:0]
+.plot clk5
+.plot betaop(D[31:26])
+.plot Wr
+.plot RD1d[31:0]
+.plot RD2d[31:0]
+.plot ALUOut[31:0]
+.plot RD[31:0]

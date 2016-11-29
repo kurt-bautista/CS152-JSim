@@ -136,38 +136,49 @@
         + 0b00010110000101 // SHRC
         + 0b00010110001101 // SRAC
         + 0b00010110001101 // SRAC
+        + 0b00000000000000
+        + 0b00000000000000
     + )
 
 .ends
 
-.subckt datamemory clock A[9:0] WD[31:0] Wr RD[31:0]
+.subckt datamemory clock A[9:0] WD[31:0] Wr RD[31:0] reset
+
+    Xmux reset Wr 0 wres mux2
+
     Xmem
     + vdd 0 0 A[9:0] RD[31:0]
-    + 0 clock Wr A[9:0] WD[31:0]
+    + 0 clock wres A[9:0] WD[31:0]
     + $memory width=32 nlocations=1024
-    + contents=(0)
+    + file="test.bsim.bin"
 .ends
 
 .subckt instructionmemory A[9:0] D[31:0]
     Xmem
     + vdd 0 0 A[9:0] D[31:0]
     + $memory width=32 nlocations=1024
-    + contents=(0)
+    + file="test.bsim.bin"
 .ends
 
-.subckt registers clock WD[31:0] WE WA[4:0] RA1a[4:0] RA2a[4:0] RD1d[31:0] RD2d[31:0]
+.subckt registers clock WD[31:0] WE WA[4:0] RA1a[4:0] RA2a[4:0] RD1d[31:0] RD2d[31:0] reset
+
+    Xmux reset WE 0 WEres mux2
 
     *Disable write if R31
     Xand_1 WA4 WA3 WA2 WA1 a and4
     Xnand_1 a WA0 b nand2
-    Xand_2_1 b WE wre and2
+    Xand_2 b WEres wre and2
 
     Xmem
     + 0 clock wre WA[4:0] WD[31:0]
     + vdd 0 0 RA1a[4:0] RD1d[31:0]
     + vdd 0 0 RA2a[4:0] RD2d[31:0]
     + $memory width=32 nlocations=32
-    + contents=(0)
+    + contents=(
+        + 0 0 0 0 0 0 0 0
+        + 0 0 0 0 0 0 0 0
+        + 0 0 0 0 0 0 0 0
+        + 0 0 0 0 0 0 0 0)
 
 .ends
 
