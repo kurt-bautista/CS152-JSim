@@ -37,7 +37,7 @@ Xnor_1 RD1d[0:7] RD1d[8:15] RD1d[16:23] RD1d[24:31] nors[7:0] nor4
 Xand_1 nors[0:1] nors[2:3] nors[4:5] nors[6:7] ands[1:0] and4
 Xand_2 ands1 ands0 Z and2
 
-.connect 0 C[31:16]
+Xext D15#16 C[31:16] knex
 Xc C[15:0] D[15:0] knex
 
 * Shift
