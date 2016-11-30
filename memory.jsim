@@ -106,10 +106,10 @@
         + 0b00000110001101 // SRA
         + 0b00000000000000
         + 0b00000000000000
-        + 0b00000000000000
-        + 0b00000000000000
-        + 0b00000000000000
-        + 0b00000000000000
+        + 0b00010100000001 // ADDC
+        + 0b00010100000001 // ADDC
+        + 0b00010100000101 // SUBC
+        + 0b00010100000101 // SUBC
         + 0b00000000000000
         + 0b00000000000000
         + 0b00000000000000
@@ -181,18 +181,3 @@
         + 0 0 0 0 0 0 0 0)
 
 .ends
-
-* Wop OPCODE[5:0] nrz(0, 5, 100ns, 0ns, 0.1ns, 0.1ns) 0
-* Wz z nrz(0, 5, 100ns, 0ns, 0.1ns, 0.1ns) 0
-* Xcu_test OPCODE[5:0] z a[1:0] b c d[1:0] e[5:0] f g controlunit
-
-* .tran 100ns
-* .plot a[1:0]
-* .plot d[1:0]
-* .plot e[5:0]
-* .plot g
-
-* Counter
-* Ws reset nrz(0, 5, 15ns, 0ns, 0.1ns, 0.1ns) 1 0
-* Xreset reset#32 sum[31:0] 0#32 muxOut[31:0] mux2
-* Xregisters muxOut[31:0] clk2#32 b[31:0] dreg
