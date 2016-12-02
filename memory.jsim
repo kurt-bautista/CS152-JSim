@@ -150,14 +150,14 @@
     + vdd 0 0 A[9:0] RD[31:0]
     + 0 clock wres A[9:0] WD[31:0]
     + $memory width=32 nlocations=1024
-    + file="test.bsim.bin"
+    + file="branchjmp.bin"
 .ends
 
 .subckt instructionmemory A[9:0] D[31:0]
     Xmem
     + vdd 0 0 A[9:0] D[31:0]
     + $memory width=32 nlocations=1024
-    + file="test.bsim.bin"
+    + file="branchjmp.bin"
 .ends
 
 .subckt registers clock WD[31:0] WE WA[4:0] RA1a[4:0] RA2a[4:0] RD1d[31:0] RD2d[31:0] reset

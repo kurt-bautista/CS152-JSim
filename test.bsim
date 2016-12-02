@@ -1,0 +1,23 @@
+.include beta.uasm
+
+LD(r31, msg, r0) |r0 = msg
+LD(r31, key, r1) |r1 = key
+LD(r31, counter, r2) |r2 = counter
+LD(r31, st, r3) |r3 = start
+
+start: BEQ(r2, stop, r31)
+SUBC(r2, 1, r2)
+
+XOR(r0, r1, r0)
+SHLC(r1, 4, r1)
+JMP(r3)
+
+stop: ST(r0, encrypted, r31)
+HALT()
+
+.=0x400
+msg: LONG(0xF0A596C3)
+key: LONG(0b1011)
+encrypted: LONG(0)
+counter: LONG(8)
+st: LONG(16)
